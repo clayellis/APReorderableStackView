@@ -67,7 +67,7 @@ class RView: UIView {
 
 class MainView: UIView {
     
-    let rStackView = RStackView()
+    let rStackView = APRedorderableStackView()
     
     var rViews = [RView]()
     
@@ -77,7 +77,7 @@ class MainView: UIView {
         for index in 1 ... 4 {
             var color: String!
             var height: CGFloat!
-            switch index { //150//
+            switch index {
             case 1: color = "385C69"; height = 100
             case 2: color = "5993A9"; height = 130
             case 3: color = "619FB6"; height = 50
@@ -120,12 +120,9 @@ class MainView: UIView {
         self.configureSubviews()
         
         // Add Constraints
-//        let height: CGFloat = 100 + 130 + 50 + 70
-        
         self.rStackView.constrainUsing(constraints: [
             Constraint.llrr : (of: self, offset: 15),
-            Constraint.ttbb : (of: self, offset: 40)])//,
-//            Constraint.bb : (of: self, offset: -40)])
+            Constraint.ttbb : (of: self, offset: 40)])
         
         super.updateConstraints()
     }
