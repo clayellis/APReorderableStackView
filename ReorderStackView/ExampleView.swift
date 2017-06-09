@@ -50,7 +50,7 @@ class ExampleView: UIView {
         self.backgroundColor = .white
         
         // Style Subviews
-        self.rStackView.axis = .vertical
+        self.rStackView.axis = .horizontal
         self.rStackView.distribution = .fillProportionally
         self.rStackView.alignment = .fill
         self.rStackView.clipsToBounds = false

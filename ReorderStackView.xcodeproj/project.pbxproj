@@ -14,6 +14,7 @@
 		6F7D74D71BD1B46B0035E6E3 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 6F7D74D51BD1B46B0035E6E3 /* LaunchScreen.storyboard */; };
 		6F7D74DE1BD1B6740035E6E3 /* APRedorderableStackView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F7D74DD1BD1B6740035E6E3 /* APRedorderableStackView.swift */; };
 		6F7D74E41BD1B8370035E6E3 /* UIColorExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F7D74E31BD1B8370035E6E3 /* UIColorExtension.swift */; };
+		B8A3789E1EEAE40000613B8C /* AxisHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8A3789D1EEAE40000613B8C /* AxisHelpers.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -26,6 +27,7 @@
 		6F7D74D61BD1B46B0035E6E3 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		6F7D74DD1BD1B6740035E6E3 /* APRedorderableStackView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = APRedorderableStackView.swift; sourceTree = "<group>"; };
 		6F7D74E31BD1B8370035E6E3 /* UIColorExtension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = UIColorExtension.swift; path = ../UIColorExtension.swift; sourceTree = "<group>"; };
+		B8A3789D1EEAE40000613B8C /* AxisHelpers.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AxisHelpers.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -62,6 +64,7 @@
 				6F7D74CB1BD1B46B0035E6E3 /* ExampleViewController.swift */,
 				6F7D74CD1BD1B46B0035E6E3 /* ExampleView.swift */,
 				6F7D74DD1BD1B6740035E6E3 /* APRedorderableStackView.swift */,
+				B8A3789D1EEAE40000613B8C /* AxisHelpers.swift */,
 				6F7D74E31BD1B8370035E6E3 /* UIColorExtension.swift */,
 				6F7D74D11BD1B46B0035E6E3 /* Info.plist */,
 				6F7D74D31BD1B46B0035E6E3 /* Assets.xcassets */,
@@ -144,6 +147,7 @@
 				6F7D74CA1BD1B46B0035E6E3 /* AppDelegate.swift in Sources */,
 				6F7D74CE1BD1B46B0035E6E3 /* ExampleView.swift in Sources */,
 				6F7D74DE1BD1B6740035E6E3 /* APRedorderableStackView.swift in Sources */,
+				B8A3789E1EEAE40000613B8C /* AxisHelpers.swift in Sources */,
 				6F7D74E41BD1B8370035E6E3 /* UIColorExtension.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

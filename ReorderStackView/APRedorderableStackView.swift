@@ -34,18 +34,18 @@ class APRedorderableStackView: UIStackView, UIGestureRecognizerDelegate {
     var reorderDelegate: APStackViewReorderDelegate?
     
     // Gesture recognizers
-    fileprivate var longPressGRS = [UILongPressGestureRecognizer]()
+    private var longPressGRS = [UILongPressGestureRecognizer]()
     
     // Views for reordering
-    fileprivate var temporaryView: UIView!
-    fileprivate var temporaryViewForShadow: UIView!
-    fileprivate var actualView: UIView!
+    private var temporaryView: UIView!
+    private var temporaryViewForShadow: UIView!
+    private var actualView: UIView!
     
     // Values for reordering
-    fileprivate var reordering = false
-    fileprivate var finalReorderFrame: CGRect!
-    fileprivate var originalPosition: CGPoint!
-    fileprivate var pointForReordering: CGPoint!
+    private var reordering = false
+    private var finalReorderFrame: CGRect!
+    private var originalPosition: CGPoint!
+    private var pointForReordering: CGPoint!
     
     
     
@@ -71,7 +71,7 @@ class APRedorderableStackView: UIStackView, UIGestureRecognizerDelegate {
         self.addLongPressGestureRecognizerForReorderingToView(view)
     }
     
-    fileprivate func addLongPressGestureRecognizerForReorderingToView(_ view: UIView) {
+    private func addLongPressGestureRecognizerForReorderingToView(_ view: UIView) {
         let longPressGR = UILongPressGestureRecognizer(target: self, action: #selector(APRedorderableStackView.handleLongPress(_:)))
         longPressGR.delegate = self
         longPressGR.minimumPressDuration = self.longPressMinimumPressDuration
@@ -81,13 +81,13 @@ class APRedorderableStackView: UIStackView, UIGestureRecognizerDelegate {
         self.longPressGRS.append(longPressGR)
     }
     
-    fileprivate func setReorderingEnabled(_ enabled: Bool) {
+    private func setReorderingEnabled(_ enabled: Bool) {
         for longPressGR in self.longPressGRS {
             longPressGR.isEnabled = enabled
         }
     }
     
-    fileprivate func updateMinimumPressDuration() {
+    private func updateMinimumPressDuration() {
         for longPressGR in self.longPressGRS {
             longPressGR.minimumPressDuration = self.longPressMinimumPressDuration
         }
@@ -103,7 +103,11 @@ class APRedorderableStackView: UIStackView, UIGestureRecognizerDelegate {
             
             self.actualView = gr.view!
             self.originalPosition = gr.location(in: self)
-            self.originalPosition.y -= self.dragHintSpacing
+            
+            let axisAwareOriginalPosition = createAxisAwarePoint(originalPosition)
+            axisAwareOriginalPosition.valueAlongAxis -= self.dragHintSpacing
+            self.originalPosition = axisAwareOriginalPosition.point
+            
             self.pointForReordering = self.originalPosition
             self.prepareForReordering()
             
@@ -138,31 +142,42 @@ class APRedorderableStackView: UIStackView, UIGestureRecognizerDelegate {
     private func swapViewsIfNeeded() {
         // Use the midY of the temporaryView to determine the dragging direction, location
         // maxY and minY are used in the delegate call didDragToReorder
-        let maxY = self.temporaryView.frame.maxY
-        let midY = self.temporaryView.frame.midY
-        let minY = self.temporaryView.frame.minY
+        
+        let axisAwareTemporaryViewFrame = createAxisAwareRect(temporaryView.frame)
+        let alongAxisMax = axisAwareTemporaryViewFrame.maxAlongAxis
+        let alongAxisMid = axisAwareTemporaryViewFrame.midAlongAxis
+        let alongAxisMin = axisAwareTemporaryViewFrame.minAlongAxis
         let index = self.indexOfArrangedSubview(self.actualView)
         
-        if midY > self.pointForReordering.y {
+        
+        if alongAxisMid > createAxisAwarePoint(self.pointForReordering).valueAlongAxis {
             // Dragging the view down
-            self.reorderDelegate?.didDragToReorder?(inUpDirection: false, maxY: maxY, minY: minY)
+            self.reorderDelegate?.didDragToReorder?(inUpDirection: false, maxY: alongAxisMax, minY: alongAxisMin)
             
             if let nextView = self.getNextViewInStack(usingIndex: index) {
-                if midY > nextView.frame.midY {
+                if alongAxisMid > createAxisAwareRect(nextView.frame).midAlongAxis {
                     swapActualView(with: nextView)
                 }
             }
             
         } else {
             // Dragging the view up
-            self.reorderDelegate?.didDragToReorder?(inUpDirection: true, maxY: maxY, minY: minY)
+            self.reorderDelegate?.didDragToReorder?(inUpDirection: true, maxY: alongAxisMax, minY: alongAxisMin)
             
             if let previousView = self.getPreviousViewInStack(usingIndex: index) {
-                if midY < previousView.frame.midY {
+                if alongAxisMid < createAxisAwareRect(previousView.frame).midAlongAxis {
                     swapActualView(with: previousView)
                 }
             }
         }
+    }
+    
+    private func createAxisAwareRect(_ rect: CGRect) -> AxisAwareRect {
+        return AxisAwareRect(rect: rect, axis: axis)
+    }
+    
+    private func createAxisAwarePoint(_ point: CGPoint) -> AxisAwarePoint {
+        return AxisAwarePoint(point: point, axis: axis)
     }
     
     
@@ -176,11 +191,11 @@ class APRedorderableStackView: UIStackView, UIGestureRecognizerDelegate {
             self.insertArrangedSubview(otherView, at: newIndexOfOtherView)
         })
         self.finalReorderFrame = self.actualView.frame
-        self.pointForReordering.y = self.actualView.frame.midY
+        self.pointForReordering = self.actualView.center
     }
     
     
-    fileprivate func prepareForReordering() {
+    private func prepareForReordering() {
         
         self.clipsToBounds = self.clipsToBoundsWhileReordering
         
@@ -200,7 +215,7 @@ class APRedorderableStackView: UIStackView, UIGestureRecognizerDelegate {
             }, completion: nil)
     }
     
-    fileprivate func cleanupUpAfterReordering() {
+    private func cleanupUpAfterReordering() {
         
         UIView.animate(withDuration: 0.4, delay: 0, usingSpringWithDamping: 0.8, initialSpringVelocity: 0, options: [.allowUserInteraction, .beginFromCurrentState], animations: {
             
@@ -216,11 +231,10 @@ class APRedorderableStackView: UIStackView, UIGestureRecognizerDelegate {
         
     }
     
-    
     // MARK:- View Styling Methods
     // ---------------------------------------------------------------------------------------------
     
-    fileprivate func styleViewsForReordering() {
+    private func styleViewsForReordering() {
         
         let roundKey = "Round"
         let round = createBasicAnimation(keyPath: "cornerRadius", fromValue: 0, toValue: self.cornerRadii, duration: 0.1)
@@ -272,7 +286,7 @@ class APRedorderableStackView: UIStackView, UIGestureRecognizerDelegate {
         return result
     }
     
-    fileprivate func styleViewsForEndReordering() {
+    private func styleViewsForEndReordering() {
         
         let squareKey = "Square"
         let square = createBasicAnimation(keyPath: "cornerRadius", fromValue: self.cornerRadii, toValue: 0, duration: 0.1)
@@ -310,7 +324,7 @@ class APRedorderableStackView: UIStackView, UIGestureRecognizerDelegate {
     // MARK:- Stack View Helper Methods
     // ---------------------------------------------------------------------------------------------
     
-    fileprivate func indexOfArrangedSubview(_ view: UIView) -> Int {
+    private func indexOfArrangedSubview(_ view: UIView) -> Int {
         for (index, subview) in self.arrangedSubviews.enumerated() {
             if view == subview {
                 return index
@@ -319,12 +333,12 @@ class APRedorderableStackView: UIStackView, UIGestureRecognizerDelegate {
         return 0
     }
     
-    fileprivate func getPreviousViewInStack(usingIndex index: Int) -> UIView? {
+    private func getPreviousViewInStack(usingIndex index: Int) -> UIView? {
         if index == 0 { return nil }
         return self.arrangedSubviews[index - 1]
     }
     
-    fileprivate func getNextViewInStack(usingIndex index: Int) -> UIView? {
+    private func getNextViewInStack(usingIndex index: Int) -> UIView? {
         if index == self.arrangedSubviews.count - 1 { return nil }
         return self.arrangedSubviews[index + 1]
     }
