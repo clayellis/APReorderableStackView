@@ -19,15 +19,22 @@ class ExampleView: UIView {
         
         for index in 1 ... 4 {
             var color: String!
-            var height: CGFloat!
+            var length: CGFloat!
             switch index {
-            case 1: color = "385C69"; height = 100
-            case 2: color = "5993A9"; height = 130
-            case 3: color = "619FB6"; height = 50
-            default: color = "81D6F5"; height = 70
+            case 1: color = "385C69"; length = 100
+            case 2: color = "5993A9"; length = 130
+            case 3: color = "619FB6"; length = 50
+            default: color = "81D6F5"; length = 70
             }
-            self.rViews.append(RView(num: index, color: color, height: height))
+            
+            let size = CGSize(width: length, height: length)
+            self.rViews.append(RView(num: index, color: color, size: size))
         }
+    }
+    
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        rStackView.axis = bounds.width > bounds.height ? .horizontal : .vertical
     }
     
     override init(frame: CGRect) {
@@ -87,16 +94,16 @@ class RView: UIView {
     // Data
     var num = 0
     var color = "000000"
-    var height: CGFloat = 150
+    var size = CGSize(width: 150, height: 150)
     
     // Subviews
     let label = UILabel()
     
-    convenience init(num: Int, color: String, height: CGFloat) {
+    convenience init(num: Int, color: String, size: CGSize) {
         self.init(frame: CGRect.zero)
         self.num = num
         self.color = color
-        self.height = height
+        self.size = size
     }
     
     override init(frame: CGRect) {
@@ -142,7 +149,7 @@ class RView: UIView {
     }
     
     override var intrinsicContentSize : CGSize {
-        return CGSize(width: 10, height: self.height)
+        return size
     }
     
 }

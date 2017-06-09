@@ -104,7 +104,7 @@ class APRedorderableStackView: UIStackView, UIGestureRecognizerDelegate {
             self.actualView = gr.view!
             self.originalPosition = gr.location(in: self)
             
-            let axisAwareOriginalPosition = createAxisAwarePoint(originalPosition)
+            var axisAwareOriginalPosition = createAxisAwarePoint(originalPosition)
             axisAwareOriginalPosition.valueAlongAxis -= self.dragHintSpacing
             self.originalPosition = axisAwareOriginalPosition.point
             
@@ -127,15 +127,19 @@ class APRedorderableStackView: UIStackView, UIGestureRecognizerDelegate {
     }
     
     private func dragTemporaryView(to newLocation: CGPoint) {
-        let xOffset = newLocation.x - originalPosition.x
-        let yOffset = newLocation.y - originalPosition.y
-        let translation = CGAffineTransform(translationX: xOffset, y: yOffset)
-        let scale = replicateScalieInitiallyAppliedInPrepareForReordering()
+        let translation = createTranslationForTemporaryView(at: newLocation)
+        let scale = replicateScaleInitiallyAppliedInPrepareForReordering()
         self.temporaryView.transform = scale.concatenating(translation)
         self.temporaryViewForShadow.transform = translation
     }
     
-    private func replicateScalieInitiallyAppliedInPrepareForReordering() -> CGAffineTransform {
+    private func createTranslationForTemporaryView(at newLocation: CGPoint) -> CGAffineTransform {
+        let xOffset = newLocation.x - originalPosition.x
+        let yOffset = newLocation.y - originalPosition.y
+        return CGAffineTransform(translationX: xOffset, y: yOffset)
+    }
+    
+    private func replicateScaleInitiallyAppliedInPrepareForReordering() -> CGAffineTransform {
         return CGAffineTransform(scaleX: self.temporaryViewScale, y: self.temporaryViewScale)
     }
     
@@ -170,14 +174,6 @@ class APRedorderableStackView: UIStackView, UIGestureRecognizerDelegate {
                 }
             }
         }
-    }
-    
-    private func createAxisAwareRect(_ rect: CGRect) -> AxisAwareRect {
-        return AxisAwareRect(rect: rect, axis: axis)
-    }
-    
-    private func createAxisAwarePoint(_ point: CGPoint) -> AxisAwarePoint {
-        return AxisAwarePoint(point: point, axis: axis)
     }
     
     
@@ -345,6 +341,14 @@ class APRedorderableStackView: UIStackView, UIGestureRecognizerDelegate {
     
     override func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
         return !self.reordering
+    }
+    
+    private func createAxisAwareRect(_ rect: CGRect) -> AxisAwareRect {
+        return AxisAwareRect(rect: rect, axis: axis)
+    }
+    
+    private func createAxisAwarePoint(_ point: CGPoint) -> AxisAwarePoint {
+        return AxisAwarePoint(point: point, axis: axis)
     }
 
 }

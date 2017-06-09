@@ -8,15 +8,10 @@
 
 import UIKit
 
-class AxisAwarePoint {
+struct AxisAwarePoint {
     
     var point: CGPoint
     var axis: UILayoutConstraintAxis
-    
-    init(point: CGPoint, axis: UILayoutConstraintAxis) {
-        self.point = point
-        self.axis = axis
-    }
     
     var valueAlongAxis: CGFloat {
         get {
@@ -33,15 +28,10 @@ class AxisAwarePoint {
     }
 }
 
-class AxisAwareRect {
+struct AxisAwareRect {
     
     var rect: CGRect
     var axis: UILayoutConstraintAxis
-    
-    init(rect: CGRect, axis: UILayoutConstraintAxis) {
-        self.rect = rect
-        self.axis = axis
-    }
     
     var minAlongAxis: CGFloat {
         get {
