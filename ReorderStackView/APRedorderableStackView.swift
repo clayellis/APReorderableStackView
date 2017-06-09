@@ -47,12 +47,15 @@ class APRedorderableStackView: UIStackView, UIGestureRecognizerDelegate {
     fileprivate var originalPosition: CGPoint!
     fileprivate var pointForReordering: CGPoint!
     
+    
+    
     // Appearance Constants
     var clipsToBoundsWhileReordering = false
     var cornerRadii: CGFloat = 5
     var temporaryViewScale: CGFloat = 1.05
     var otherViewsScale: CGFloat = 0.97
     var temporaryViewAlpha: CGFloat = 0.9
+    
     /// The gap created once the long press drag is triggered
     var dragHintSpacing: CGFloat = 5
     var longPressMinimumPressDuration = 0.2 {
@@ -92,7 +95,8 @@ class APRedorderableStackView: UIStackView, UIGestureRecognizerDelegate {
     
     internal func handleLongPress(_ gr: UILongPressGestureRecognizer) {
         
-        if gr.state == .began {
+        switch gr.state {
+        case .began:
             
             self.reordering = true
             self.reorderDelegate?.didBeginReordering?()
@@ -103,69 +107,78 @@ class APRedorderableStackView: UIStackView, UIGestureRecognizerDelegate {
             self.pointForReordering = self.originalPosition
             self.prepareForReordering()
             
-        } else if gr.state == .changed {
+        case .changed:
+            dragTemporaryView(to: gr.location(in: self))
+            swapViewsIfNeeded()
             
-            // Drag the temporaryView
-            let newLocation = gr.location(in: self)
-            let xOffset = newLocation.x - originalPosition.x
-            let yOffset = newLocation.y - originalPosition.y
-            let translation = CGAffineTransform(translationX: xOffset, y: yOffset)
-            // Replicate the scale that was initially applied in perpareForReordering:
-            let scale = CGAffineTransform(scaleX: self.temporaryViewScale, y: self.temporaryViewScale)
-            self.temporaryView.transform = scale.concatenating(translation)
-            self.temporaryViewForShadow.transform = translation
-            
-            // Use the midY of the temporaryView to determine the dragging direction, location
-            // maxY and minY are used in the delegate call didDragToReorder
-            let maxY = self.temporaryView.frame.maxY
-            let midY = self.temporaryView.frame.midY
-            let minY = self.temporaryView.frame.minY
-            let index = self.indexOfArrangedSubview(self.actualView)
-            
-            if midY > self.pointForReordering.y {
-                // Dragging the view down
-                self.reorderDelegate?.didDragToReorder?(inUpDirection: false, maxY: maxY, minY: minY)
-                
-                if let nextView = self.getNextViewInStack(usingIndex: index) {
-                    if midY > nextView.frame.midY {
-                        
-                        // Swap the two arranged subviews
-                        UIView.animate(withDuration: 0.2, animations: {
-                            self.insertArrangedSubview(nextView, at: index)
-                            self.insertArrangedSubview(self.actualView, at: index + 1)
-                        })
-                        self.finalReorderFrame = self.actualView.frame
-                        self.pointForReordering.y = self.actualView.frame.midY
-                    }
-                }
-                
-            } else {
-                // Dragging the view up
-                self.reorderDelegate?.didDragToReorder?(inUpDirection: true, maxY: maxY, minY: minY)
-                
-                if let previousView = self.getPreviousViewInStack(usingIndex: index) {
-                    if midY < previousView.frame.midY {
-                        
-                        // Swap the two arranged subviews
-                        UIView.animate(withDuration: 0.2, animations: {
-                            self.insertArrangedSubview(previousView, at: index)
-                            self.insertArrangedSubview(self.actualView, at: index - 1)
-                        })
-                        self.finalReorderFrame = self.actualView.frame
-                        self.pointForReordering.y = self.actualView.frame.midY
-                        
-                    }
-                }
-            }
-            
-        } else if gr.state == .ended || gr.state == .cancelled || gr.state == .failed {
+        case .ended, .cancelled, .failed:
             
             self.cleanupUpAfterReordering()
             self.reordering = false
             self.reorderDelegate?.didEndReordering?()
+            
+        default:
+            break
         }
-        
     }
+    
+    private func dragTemporaryView(to newLocation: CGPoint) {
+        let xOffset = newLocation.x - originalPosition.x
+        let yOffset = newLocation.y - originalPosition.y
+        let translation = CGAffineTransform(translationX: xOffset, y: yOffset)
+        let scale = replicateScalieInitiallyAppliedInPrepareForReordering()
+        self.temporaryView.transform = scale.concatenating(translation)
+        self.temporaryViewForShadow.transform = translation
+    }
+    
+    private func replicateScalieInitiallyAppliedInPrepareForReordering() -> CGAffineTransform {
+        return CGAffineTransform(scaleX: self.temporaryViewScale, y: self.temporaryViewScale)
+    }
+    
+    private func swapViewsIfNeeded() {
+        // Use the midY of the temporaryView to determine the dragging direction, location
+        // maxY and minY are used in the delegate call didDragToReorder
+        let maxY = self.temporaryView.frame.maxY
+        let midY = self.temporaryView.frame.midY
+        let minY = self.temporaryView.frame.minY
+        let index = self.indexOfArrangedSubview(self.actualView)
+        
+        if midY > self.pointForReordering.y {
+            // Dragging the view down
+            self.reorderDelegate?.didDragToReorder?(inUpDirection: false, maxY: maxY, minY: minY)
+            
+            if let nextView = self.getNextViewInStack(usingIndex: index) {
+                if midY > nextView.frame.midY {
+                    swapActualView(with: nextView)
+                }
+            }
+            
+        } else {
+            // Dragging the view up
+            self.reorderDelegate?.didDragToReorder?(inUpDirection: true, maxY: maxY, minY: minY)
+            
+            if let previousView = self.getPreviousViewInStack(usingIndex: index) {
+                if midY < previousView.frame.midY {
+                    swapActualView(with: previousView)
+                }
+            }
+        }
+    }
+    
+    
+    private func swapActualView(with otherView: UIView) {
+        
+        let newIndexOfActualView = indexOfArrangedSubview(otherView)
+        let newIndexOfOtherView = indexOfArrangedSubview(self.actualView)
+        
+        UIView.animate(withDuration: 0.2, animations: {
+            self.insertArrangedSubview(self.actualView, at: newIndexOfActualView)
+            self.insertArrangedSubview(otherView, at: newIndexOfOtherView)
+        })
+        self.finalReorderFrame = self.actualView.frame
+        self.pointForReordering.y = self.actualView.frame.midY
+    }
+    
     
     fileprivate func prepareForReordering() {
         
@@ -210,12 +223,7 @@ class APRedorderableStackView: UIStackView, UIGestureRecognizerDelegate {
     fileprivate func styleViewsForReordering() {
         
         let roundKey = "Round"
-        let round = CABasicAnimation(keyPath: "cornerRadius")
-        round.fromValue = 0
-        round.toValue = self.cornerRadii
-        round.duration = 0.1
-        round.isRemovedOnCompletion = false
-        round.fillMode = kCAFillModeForwards
+        let round = createBasicAnimation(keyPath: "cornerRadius", fromValue: 0, toValue: self.cornerRadii, duration: 0.1)
         
         // Grow, hint with offset, fade, round the temporaryView
         let scale = CGAffineTransform(scaleX: self.temporaryViewScale, y: self.temporaryViewScale)
@@ -233,28 +241,13 @@ class APRedorderableStackView: UIStackView, UIGestureRecognizerDelegate {
         
         // Shadow animations
         let shadowOpacityKey = "ShadowOpacity"
-        let shadowOpacity = CABasicAnimation(keyPath: "shadowOpacity")
-        shadowOpacity.fromValue = 0
-        shadowOpacity.toValue = 0.2
-        shadowOpacity.duration = 0.2
-        shadowOpacity.isRemovedOnCompletion = false
-        shadowOpacity.fillMode = kCAFillModeForwards
+        let shadowOpacity = createBasicAnimation(keyPath: "shadowOpacity", fromValue: 0, toValue: 0.2, duration: 0.2)
         
         let shadowOffsetKey = "ShadowOffset"
-        let shadowOffset = CABasicAnimation(keyPath: "shadowOffset.height")
-        shadowOffset.fromValue = 0
-        shadowOffset.toValue = 50
-        shadowOffset.duration = 0.2
-        shadowOffset.isRemovedOnCompletion = false
-        shadowOffset.fillMode = kCAFillModeForwards
+        let shadowOffset = createBasicAnimation(keyPath: "shadowOffset.height", fromValue: 0, toValue: 50, duration: 0.2)
         
         let shadowRadiusKey = "ShadowRadius"
-        let shadowRadius = CABasicAnimation(keyPath: "shadowRadius")
-        shadowRadius.fromValue = 0
-        shadowRadius.toValue = 20
-        shadowRadius.duration = 0.2
-        shadowRadius.isRemovedOnCompletion = false
-        shadowRadius.fillMode = kCAFillModeForwards
+        let shadowRadius = createBasicAnimation(keyPath: "shadowRadius", fromValue: 0, toValue: 20, duration: 0.2)
         
         self.temporaryViewForShadow.layer.add(shadowOpacity, forKey: shadowOpacityKey)
         self.temporaryViewForShadow.layer.add(shadowOffset, forKey: shadowOffsetKey)
@@ -269,15 +262,20 @@ class APRedorderableStackView: UIStackView, UIGestureRecognizerDelegate {
         }
     }
     
+    private func createBasicAnimation(keyPath: String, fromValue: CGFloat, toValue: CGFloat, duration: CFTimeInterval) -> CABasicAnimation {
+        let result = CABasicAnimation(keyPath: keyPath)
+        result.fromValue = fromValue
+        result.toValue = toValue
+        result.duration = duration
+        result.isRemovedOnCompletion = false
+        result.fillMode = kCAFillModeForwards
+        return result
+    }
+    
     fileprivate func styleViewsForEndReordering() {
         
         let squareKey = "Square"
-        let square = CABasicAnimation(keyPath: "cornerRadius")
-        square.fromValue = self.cornerRadii
-        square.toValue = 0
-        square.duration = 0.1
-        square.isRemovedOnCompletion = false
-        square.fillMode = kCAFillModeForwards
+        let square = createBasicAnimation(keyPath: "cornerRadius", fromValue: self.cornerRadii, toValue: 0, duration: 0.1)
         
         // Return drag view to original appearance
         self.temporaryView.transform = CGAffineTransform(scaleX: 1.0, y: 1.0)
@@ -287,28 +285,13 @@ class APRedorderableStackView: UIStackView, UIGestureRecognizerDelegate {
         
         // Shadow animations
         let shadowOpacityKey = "ShadowOpacity"
-        let shadowOpacity = CABasicAnimation(keyPath: "shadowOpacity")
-        shadowOpacity.fromValue = 0.2
-        shadowOpacity.toValue = 0
-        shadowOpacity.duration = 0.2
-        shadowOpacity.isRemovedOnCompletion = false
-        shadowOpacity.fillMode = kCAFillModeForwards
+        let shadowOpacity = createBasicAnimation(keyPath: "shadowOpacity", fromValue: 0.2, toValue: 0, duration: 0.2)
         
         let shadowOffsetKey = "ShadowOffset"
-        let shadowOffset = CABasicAnimation(keyPath: "shadowOffset.height")
-        shadowOffset.fromValue = 50
-        shadowOffset.toValue = 0
-        shadowOffset.duration = 0.2
-        shadowOffset.isRemovedOnCompletion = false
-        shadowOffset.fillMode = kCAFillModeForwards
+        let shadowOffset = createBasicAnimation(keyPath: "shadowOffset.height", fromValue: 50, toValue: 0, duration: 0.2)
         
         let shadowRadiusKey = "ShadowRadius"
-        let shadowRadius = CABasicAnimation(keyPath: "shadowRadius")
-        shadowRadius.fromValue = 20
-        shadowRadius.toValue = 0
-        shadowRadius.duration = 0.4
-        shadowRadius.isRemovedOnCompletion = false
-        shadowRadius.fillMode = kCAFillModeForwards
+        let shadowRadius = createBasicAnimation(keyPath: "shadowRadius", fromValue: 20, toValue: 0, duration: 0.4)
         
         self.temporaryViewForShadow.layer.add(shadowOpacity, forKey: shadowOpacityKey)
         self.temporaryViewForShadow.layer.add(shadowOffset, forKey: shadowOffsetKey)
