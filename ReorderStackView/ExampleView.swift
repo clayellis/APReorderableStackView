@@ -15,7 +15,7 @@ class ExampleView: UIView {
     var rViews = [RView]()
     
     convenience init() {
-        self.init(frame: CGRectZero)
+        self.init(frame: CGRect.zero)
         
         for index in 1 ... 4 {
             var color: String!
@@ -47,12 +47,12 @@ class ExampleView: UIView {
         }
         
         // Style View
-        self.backgroundColor = .whiteColor()
+        self.backgroundColor = .white
         
         // Style Subviews
-        self.rStackView.axis = .Vertical
-        self.rStackView.distribution = .FillProportionally
-        self.rStackView.alignment = .Fill
+        self.rStackView.axis = .vertical
+        self.rStackView.distribution = .fillProportionally
+        self.rStackView.alignment = .fill
         self.rStackView.clipsToBounds = false
         
         // ----------------------------------------------------------------------------
@@ -68,10 +68,10 @@ class ExampleView: UIView {
         
         // Add Constraints
         self.rStackView.translatesAutoresizingMaskIntoConstraints = false
-        let left    = NSLayoutConstraint(item: self.rStackView, attribute: .Left, relatedBy: .Equal, toItem: self, attribute: .Left, multiplier: 1.0, constant: 15)
-        let right   = NSLayoutConstraint(item: self.rStackView, attribute: .Right, relatedBy: .Equal, toItem: self, attribute: .Right, multiplier: 1.0, constant: -15)
-        let top     = NSLayoutConstraint(item: self.rStackView, attribute: .Top, relatedBy: .Equal, toItem: self, attribute: .Top, multiplier: 1.0, constant: 40)
-        let bottom  = NSLayoutConstraint(item: self.rStackView, attribute: .Bottom, relatedBy: .Equal, toItem: self, attribute: .Bottom, multiplier: 1.0, constant: -40)
+        let left    = NSLayoutConstraint(item: self.rStackView, attribute: .left, relatedBy: .equal, toItem: self, attribute: .left, multiplier: 1.0, constant: 15)
+        let right   = NSLayoutConstraint(item: self.rStackView, attribute: .right, relatedBy: .equal, toItem: self, attribute: .right, multiplier: 1.0, constant: -15)
+        let top     = NSLayoutConstraint(item: self.rStackView, attribute: .top, relatedBy: .equal, toItem: self, attribute: .top, multiplier: 1.0, constant: 40)
+        let bottom  = NSLayoutConstraint(item: self.rStackView, attribute: .bottom, relatedBy: .equal, toItem: self, attribute: .bottom, multiplier: 1.0, constant: -40)
         
         self.addConstraint(left)
         self.addConstraint(right)
@@ -93,7 +93,7 @@ class RView: UIView {
     let label = UILabel()
     
     convenience init(num: Int, color: String, height: CGFloat) {
-        self.init(frame: CGRectZero)
+        self.init(frame: CGRect.zero)
         self.num = num
         self.color = color
         self.height = height
@@ -117,8 +117,8 @@ class RView: UIView {
         
         // Style Subviews
         self.label.text = "\(self.num)"
-        self.label.textColor = .blackColor()
-        self.label.textAlignment = .Center
+        self.label.textColor = .black
+        self.label.textAlignment = .center
         
     }
     
@@ -128,10 +128,10 @@ class RView: UIView {
         
         // Add Constraints
         self.label.translatesAutoresizingMaskIntoConstraints = false
-        let left    = NSLayoutConstraint(item: self.label, attribute: .Left, relatedBy: .Equal, toItem: self, attribute: .Left, multiplier: 1.0, constant: 0)
-        let right   = NSLayoutConstraint(item: self.label, attribute: .Right, relatedBy: .Equal, toItem: self, attribute: .Right, multiplier: 1.0, constant: 0)
-        let top     = NSLayoutConstraint(item: self.label, attribute: .Top, relatedBy: .Equal, toItem: self, attribute: .Top, multiplier: 1.0, constant: 0)
-        let bottom  = NSLayoutConstraint(item: self.label, attribute: .Bottom, relatedBy: .Equal, toItem: self, attribute: .Bottom, multiplier: 1.0, constant: 0)
+        let left    = NSLayoutConstraint(item: self.label, attribute: .left, relatedBy: .equal, toItem: self, attribute: .left, multiplier: 1.0, constant: 0)
+        let right   = NSLayoutConstraint(item: self.label, attribute: .right, relatedBy: .equal, toItem: self, attribute: .right, multiplier: 1.0, constant: 0)
+        let top     = NSLayoutConstraint(item: self.label, attribute: .top, relatedBy: .equal, toItem: self, attribute: .top, multiplier: 1.0, constant: 0)
+        let bottom  = NSLayoutConstraint(item: self.label, attribute: .bottom, relatedBy: .equal, toItem: self, attribute: .bottom, multiplier: 1.0, constant: 0)
         
         self.addConstraint(left)
         self.addConstraint(right)
@@ -141,7 +141,7 @@ class RView: UIView {
         super.updateConstraints()
     }
     
-    override func intrinsicContentSize() -> CGSize {
+    override var intrinsicContentSize : CGSize {
         return CGSize(width: 10, height: self.height)
     }
     
