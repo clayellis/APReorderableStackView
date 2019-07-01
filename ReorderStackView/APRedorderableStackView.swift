@@ -90,7 +90,7 @@ class APRedorderableStackView: UIStackView, UIGestureRecognizerDelegate {
         }
     }
     
-    internal func handleLongPress(_ gr: UILongPressGestureRecognizer) {
+    @objc internal func handleLongPress(_ gr: UILongPressGestureRecognizer) {
         
         if gr.state == .began {
             
@@ -215,7 +215,7 @@ class APRedorderableStackView: UIStackView, UIGestureRecognizerDelegate {
         round.toValue = self.cornerRadii
         round.duration = 0.1
         round.isRemovedOnCompletion = false
-        round.fillMode = kCAFillModeForwards
+        round.fillMode = CAMediaTimingFillMode.forwards
         
         // Grow, hint with offset, fade, round the temporaryView
         let scale = CGAffineTransform(scaleX: self.temporaryViewScale, y: self.temporaryViewScale)
@@ -238,7 +238,7 @@ class APRedorderableStackView: UIStackView, UIGestureRecognizerDelegate {
         shadowOpacity.toValue = 0.2
         shadowOpacity.duration = 0.2
         shadowOpacity.isRemovedOnCompletion = false
-        shadowOpacity.fillMode = kCAFillModeForwards
+        shadowOpacity.fillMode = CAMediaTimingFillMode.forwards
         
         let shadowOffsetKey = "ShadowOffset"
         let shadowOffset = CABasicAnimation(keyPath: "shadowOffset.height")
@@ -246,7 +246,7 @@ class APRedorderableStackView: UIStackView, UIGestureRecognizerDelegate {
         shadowOffset.toValue = 50
         shadowOffset.duration = 0.2
         shadowOffset.isRemovedOnCompletion = false
-        shadowOffset.fillMode = kCAFillModeForwards
+        shadowOffset.fillMode = CAMediaTimingFillMode.forwards
         
         let shadowRadiusKey = "ShadowRadius"
         let shadowRadius = CABasicAnimation(keyPath: "shadowRadius")
@@ -254,7 +254,7 @@ class APRedorderableStackView: UIStackView, UIGestureRecognizerDelegate {
         shadowRadius.toValue = 20
         shadowRadius.duration = 0.2
         shadowRadius.isRemovedOnCompletion = false
-        shadowRadius.fillMode = kCAFillModeForwards
+        shadowRadius.fillMode = CAMediaTimingFillMode.forwards
         
         self.temporaryViewForShadow.layer.add(shadowOpacity, forKey: shadowOpacityKey)
         self.temporaryViewForShadow.layer.add(shadowOffset, forKey: shadowOffsetKey)
@@ -277,7 +277,7 @@ class APRedorderableStackView: UIStackView, UIGestureRecognizerDelegate {
         square.toValue = 0
         square.duration = 0.1
         square.isRemovedOnCompletion = false
-        square.fillMode = kCAFillModeForwards
+        square.fillMode = CAMediaTimingFillMode.forwards
         
         // Return drag view to original appearance
         self.temporaryView.transform = CGAffineTransform(scaleX: 1.0, y: 1.0)
@@ -292,7 +292,7 @@ class APRedorderableStackView: UIStackView, UIGestureRecognizerDelegate {
         shadowOpacity.toValue = 0
         shadowOpacity.duration = 0.2
         shadowOpacity.isRemovedOnCompletion = false
-        shadowOpacity.fillMode = kCAFillModeForwards
+        shadowOpacity.fillMode = CAMediaTimingFillMode.forwards
         
         let shadowOffsetKey = "ShadowOffset"
         let shadowOffset = CABasicAnimation(keyPath: "shadowOffset.height")
@@ -300,7 +300,7 @@ class APRedorderableStackView: UIStackView, UIGestureRecognizerDelegate {
         shadowOffset.toValue = 0
         shadowOffset.duration = 0.2
         shadowOffset.isRemovedOnCompletion = false
-        shadowOffset.fillMode = kCAFillModeForwards
+        shadowOffset.fillMode = CAMediaTimingFillMode.forwards
         
         let shadowRadiusKey = "ShadowRadius"
         let shadowRadius = CABasicAnimation(keyPath: "shadowRadius")
@@ -308,7 +308,7 @@ class APRedorderableStackView: UIStackView, UIGestureRecognizerDelegate {
         shadowRadius.toValue = 0
         shadowRadius.duration = 0.4
         shadowRadius.isRemovedOnCompletion = false
-        shadowRadius.fillMode = kCAFillModeForwards
+        shadowRadius.fillMode = CAMediaTimingFillMode.forwards
         
         self.temporaryViewForShadow.layer.add(shadowOpacity, forKey: shadowOpacityKey)
         self.temporaryViewForShadow.layer.add(shadowOffset, forKey: shadowOffsetKey)
