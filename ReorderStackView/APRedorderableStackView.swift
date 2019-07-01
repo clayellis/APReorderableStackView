@@ -23,15 +23,15 @@ public protocol APStackViewReorderDelegate {
     @objc optional func didEndReordering()
 }
 
-class APRedorderableStackView: UIStackView, UIGestureRecognizerDelegate {
+public class APRedorderableStackView: UIStackView, UIGestureRecognizerDelegate {
     
     /// Setting `reorderdingEnabled` to `true` enables a drag to reorder behavior like `UITableView`
-    var reorderingEnabled = false {
+    public var reorderingEnabled = false {
         didSet {
             self.setReorderingEnabled(self.reorderingEnabled)
         }
     }
-    var reorderDelegate: APStackViewReorderDelegate?
+    public var reorderDelegate: APStackViewReorderDelegate?
     
     // Gesture recognizers
     fileprivate var longPressGRS = [UILongPressGestureRecognizer]()
@@ -48,14 +48,14 @@ class APRedorderableStackView: UIStackView, UIGestureRecognizerDelegate {
     fileprivate var pointForReordering: CGPoint!
     
     // Appearance Constants
-    var clipsToBoundsWhileReordering = false
-    var cornerRadii: CGFloat = 5
-    var temporaryViewScale: CGFloat = 1.05
-    var otherViewsScale: CGFloat = 0.97
-    var temporaryViewAlpha: CGFloat = 0.9
+    public var clipsToBoundsWhileReordering = false
+    public var cornerRadii: CGFloat = 5
+    public var temporaryViewScale: CGFloat = 1.05
+    public var otherViewsScale: CGFloat = 0.97
+    public var temporaryViewAlpha: CGFloat = 0.9
     /// The gap created once the long press drag is triggered
-    var dragHintSpacing: CGFloat = 5
-    var longPressMinimumPressDuration = 0.2 {
+    public var dragHintSpacing: CGFloat = 5
+    public var longPressMinimumPressDuration = 0.2 {
         didSet {
             self.updateMinimumPressDuration()
         }
@@ -63,7 +63,7 @@ class APRedorderableStackView: UIStackView, UIGestureRecognizerDelegate {
     
     // MARK:- Reordering Methods
     // ---------------------------------------------------------------------------------------------
-    override func addArrangedSubview(_ view: UIView) {
+    override public func addArrangedSubview(_ view: UIView) {
         super.addArrangedSubview(view)
         self.addLongPressGestureRecognizerForReorderingToView(view)
     }
@@ -346,7 +346,7 @@ class APRedorderableStackView: UIStackView, UIGestureRecognizerDelegate {
         return self.arrangedSubviews[index + 1]
     }
     
-    override func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
+    override public func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
         return !self.reordering
     }
 
