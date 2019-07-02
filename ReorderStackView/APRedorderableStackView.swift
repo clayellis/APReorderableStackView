@@ -17,6 +17,10 @@ public protocol APStackViewReorderDelegate {
     /// was up or down, as well as what the max and min Y values are of the subview
     @objc optional func didDragToReorder(inUpDirection up: Bool, maxY: CGFloat, minY: CGFloat)
     
+    /// Whenever a user drags a subview for a reordering, the delegate is told whether the direction
+    /// was right or left, as well as what the max and min X values are of the subview
+    @objc optional func didDragHorizontalToReorder(inRightDirection right: Bool, maxX: CGFloat, minX: CGFloat)
+    
     /// didReorder - called whenever a subview was reordered (returns the new index)
     
     /// didEndReordering - called when reordering ends
@@ -130,7 +134,7 @@ public class APRedorderableStackView: UIStackView, UIGestureRecognizerDelegate {
                 
                 if midX > self.pointForReordering.x {
                     // Dragging the view right
-                    self.reorderDelegate?.didDragToReorder?(inUpDirection: true, maxY: maxX, minY: minX)
+                    self.reorderDelegate?.didDragHorizontalToReorder?(inRightDirection: true, maxX: maxX, minX: minX)
                     
                     if let nextView = self.getNextViewInStack(usingIndex: index) {
                         if midX > nextView.frame.midX {
@@ -147,7 +151,7 @@ public class APRedorderableStackView: UIStackView, UIGestureRecognizerDelegate {
                     
                 } else {
                     // Dragging the view left
-                    self.reorderDelegate?.didDragToReorder?(inUpDirection: false, maxY: maxX, minY: minX)
+                    self.reorderDelegate?.didDragHorizontalToReorder?(inRightDirection: false, maxX: maxX, minX: minX)
                     
                     if let previousView = self.getPreviousViewInStack(usingIndex: index) {
                         if midX < previousView.frame.midX {

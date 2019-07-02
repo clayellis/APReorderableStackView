@@ -31,6 +31,10 @@ class ExampleViewController: UIViewController, APStackViewReorderDelegate {
     func didDragToReorder(inUpDirection up: Bool, maxY: CGFloat, minY: CGFloat) {
         print("Dragging: \(up ? "Up" : "Down")")
     }
+    
+    func didDragHorizontalToReorder(inRightDirection right: Bool, maxX: CGFloat, minX: CGFloat) {
+        print("Dragging: \(right ? "Right" : "Left")")
+    }
 
     
     func didEndReordering() {
