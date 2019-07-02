@@ -17,6 +17,10 @@ public protocol APStackViewReorderDelegate {
     /// was up or down, as well as what the max and min Y values are of the subview
     @objc optional func didDragToReorder(inUpDirection up: Bool, maxY: CGFloat, minY: CGFloat)
     
+    /// Whenever a user drags a subview for a reordering, the delegate is told whether the direction
+    /// was right or left, as well as what the max and min X values are of the subview
+    @objc optional func didDragHorizontalToReorder(inRightDirection right: Bool, maxX: CGFloat, minX: CGFloat)
+    
     /// didReorder - called whenever a subview was reordered (returns the new index)
     
     /// didEndReordering - called when reordering ends
@@ -99,7 +103,11 @@ public class APRedorderableStackView: UIStackView, UIGestureRecognizerDelegate {
             
             self.actualView = gr.view!
             self.originalPosition = gr.location(in: self)
-            self.originalPosition.y -= self.dragHintSpacing
+            if self.axis == .horizontal {
+                self.originalPosition.x -= self.dragHintSpacing
+            } else {
+                self.originalPosition.y -= self.dragHintSpacing
+            }
             self.pointForReordering = self.originalPosition
             self.prepareForReordering()
             
@@ -115,45 +123,92 @@ public class APRedorderableStackView: UIStackView, UIGestureRecognizerDelegate {
             self.temporaryView.transform = scale.concatenating(translation)
             self.temporaryViewForShadow.transform = translation
             
-            // Use the midY of the temporaryView to determine the dragging direction, location
-            // maxY and minY are used in the delegate call didDragToReorder
-            let maxY = self.temporaryView.frame.maxY
-            let midY = self.temporaryView.frame.midY
-            let minY = self.temporaryView.frame.minY
-            let index = self.indexOfArrangedSubview(self.actualView)
-            
-            if midY > self.pointForReordering.y {
-                // Dragging the view down
-                self.reorderDelegate?.didDragToReorder?(inUpDirection: false, maxY: maxY, minY: minY)
+            if self.axis == .horizontal {
                 
-                if let nextView = self.getNextViewInStack(usingIndex: index) {
-                    if midY > nextView.frame.midY {
-                        
-                        // Swap the two arranged subviews
-                        UIView.animate(withDuration: 0.2, animations: {
-                            self.insertArrangedSubview(nextView, at: index)
-                            self.insertArrangedSubview(self.actualView, at: index + 1)
-                        })
-                        self.finalReorderFrame = self.actualView.frame
-                        self.pointForReordering.y = self.actualView.frame.midY
+                // Use the midX of the temporaryView to determine the dragging direction, location
+                // maxX and minX are used in the delegate call didDragToReorder
+                let maxX = self.temporaryView.frame.maxX
+                let midX = self.temporaryView.frame.midX
+                let minX = self.temporaryView.frame.minX
+                let index = self.indexOfArrangedSubview(self.actualView)
+                
+                if midX > self.pointForReordering.x {
+                    // Dragging the view right
+                    self.reorderDelegate?.didDragHorizontalToReorder?(inRightDirection: true, maxX: maxX, minX: minX)
+                    
+                    if let nextView = self.getNextViewInStack(usingIndex: index) {
+                        if midX > nextView.frame.midX {
+                            
+                            // Swap the two arranged subviews
+                            UIView.animate(withDuration: 0.2, animations: {
+                                self.insertArrangedSubview(nextView, at: index)
+                                self.insertArrangedSubview(self.actualView, at: index + 1)
+                            })
+                            self.finalReorderFrame = self.actualView.frame
+                            self.pointForReordering.x = self.actualView.frame.midX
+                        }
+                    }
+                    
+                } else {
+                    // Dragging the view left
+                    self.reorderDelegate?.didDragHorizontalToReorder?(inRightDirection: false, maxX: maxX, minX: minX)
+                    
+                    if let previousView = self.getPreviousViewInStack(usingIndex: index) {
+                        if midX < previousView.frame.midX {
+                            
+                            // Swap the two arranged subviews
+                            UIView.animate(withDuration: 0.2, animations: {
+                                self.insertArrangedSubview(previousView, at: index)
+                                self.insertArrangedSubview(self.actualView, at: index - 1)
+                            })
+                            self.finalReorderFrame = self.actualView.frame
+                            self.pointForReordering.x = self.actualView.frame.midX
+                            
+                        }
                     }
                 }
-                
             } else {
-                // Dragging the view up
-                self.reorderDelegate?.didDragToReorder?(inUpDirection: true, maxY: maxY, minY: minY)
                 
-                if let previousView = self.getPreviousViewInStack(usingIndex: index) {
-                    if midY < previousView.frame.midY {
-                        
-                        // Swap the two arranged subviews
-                        UIView.animate(withDuration: 0.2, animations: {
-                            self.insertArrangedSubview(previousView, at: index)
-                            self.insertArrangedSubview(self.actualView, at: index - 1)
-                        })
-                        self.finalReorderFrame = self.actualView.frame
-                        self.pointForReordering.y = self.actualView.frame.midY
-                        
+                // Use the midY of the temporaryView to determine the dragging direction, location
+                // maxY and minY are used in the delegate call didDragToReorder
+                let maxY = self.temporaryView.frame.maxY
+                let midY = self.temporaryView.frame.midY
+                let minY = self.temporaryView.frame.minY
+                let index = self.indexOfArrangedSubview(self.actualView)
+                
+                if midY > self.pointForReordering.y {
+                    // Dragging the view down
+                    self.reorderDelegate?.didDragToReorder?(inUpDirection: false, maxY: maxY, minY: minY)
+                    
+                    if let nextView = self.getNextViewInStack(usingIndex: index) {
+                        if midY > nextView.frame.midY {
+                            
+                            // Swap the two arranged subviews
+                            UIView.animate(withDuration: 0.2, animations: {
+                                self.insertArrangedSubview(nextView, at: index)
+                                self.insertArrangedSubview(self.actualView, at: index + 1)
+                            })
+                            self.finalReorderFrame = self.actualView.frame
+                            self.pointForReordering.y = self.actualView.frame.midY
+                        }
+                    }
+                    
+                } else {
+                    // Dragging the view up
+                    self.reorderDelegate?.didDragToReorder?(inUpDirection: true, maxY: maxY, minY: minY)
+                    
+                    if let previousView = self.getPreviousViewInStack(usingIndex: index) {
+                        if midY < previousView.frame.midY {
+                            
+                            // Swap the two arranged subviews
+                            UIView.animate(withDuration: 0.2, animations: {
+                                self.insertArrangedSubview(previousView, at: index)
+                                self.insertArrangedSubview(self.actualView, at: index - 1)
+                            })
+                            self.finalReorderFrame = self.actualView.frame
+                            self.pointForReordering.y = self.actualView.frame.midY
+                            
+                        }
                     }
                 }
             }

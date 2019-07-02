@@ -33,3 +33,8 @@ xcshareddata
 # Carthage/Checkouts
 
 Carthage/Build
+
+# Other
+#
+
+.DS_Store
