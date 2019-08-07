@@ -18,6 +18,7 @@ public protocol APStackViewReorderDelegate {
     @objc optional func didDragToReorder(inUpDirection up: Bool, maxY: CGFloat, minY: CGFloat)
     
     /// didReorder - called whenever a subview was reordered (returns the new index)
+    @objc optional func didReorder(from: Int, to: Int)
     
     /// didEndReordering - called when reordering ends
     @objc optional func didEndReordering()
@@ -133,6 +134,8 @@ public class APRedorderableStackView: UIStackView, UIGestureRecognizerDelegate {
                         UIView.animate(withDuration: 0.2, animations: {
                             self.insertArrangedSubview(nextView, at: index)
                             self.insertArrangedSubview(self.actualView, at: index + 1)
+                        }, completion: { _ in
+                            self.reorderDelegate?.didReorder?(from: index, to: index + 1)
                         })
                         self.finalReorderFrame = self.actualView.frame
                         self.pointForReordering.y = self.actualView.frame.midY
@@ -150,6 +153,8 @@ public class APRedorderableStackView: UIStackView, UIGestureRecognizerDelegate {
                         UIView.animate(withDuration: 0.2, animations: {
                             self.insertArrangedSubview(previousView, at: index)
                             self.insertArrangedSubview(self.actualView, at: index - 1)
+                        }, completion: { _ in
+                            self.reorderDelegate?.didReorder?(from: index, to: index - 1)
                         })
                         self.finalReorderFrame = self.actualView.frame
                         self.pointForReordering.y = self.actualView.frame.midY
