@@ -32,6 +32,10 @@ class ExampleViewController: UIViewController, APStackViewReorderDelegate {
         print("Dragging: \(up ? "Up" : "Down")")
     }
 
+    func didDrag(pointInStackView: CGPoint) {
+        print("Dragging point \(pointInStackView)")
+    }
+
     
     func didEndReordering() {
         print("Did end reordering")
