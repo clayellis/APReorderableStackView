@@ -19,6 +19,9 @@ public protocol APStackViewReorderDelegate {
     
     /// didReorder - called whenever a subview was reordered (returns the new index)
     
+    /// Whenever a user drags a subview for a reordering, the delegate is told where it's dragged to
+    @objc optional func didDrag(pointInStackView: CGPoint)
+    
     /// didEndReordering - called when reordering ends
     @objc optional func didEndReordering()
 }
@@ -114,6 +117,8 @@ public class APRedorderableStackView: UIStackView, UIGestureRecognizerDelegate {
             let scale = CGAffineTransform(scaleX: self.temporaryViewScale, y: self.temporaryViewScale)
             self.temporaryView.transform = scale.concatenating(translation)
             self.temporaryViewForShadow.transform = translation
+            
+            self.reorderDelegate?.didDrag?(pointInStackView: newLocation)
             
             // Use the midY of the temporaryView to determine the dragging direction, location
             // maxY and minY are used in the delegate call didDragToReorder
