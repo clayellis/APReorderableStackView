@@ -36,5 +36,9 @@ class ExampleViewController: UIViewController, APStackViewReorderDelegate {
     func didEndReordering() {
         print("Did end reordering")
     }
+
+    func didReorder(from: Int, to: Int) {
+        print("Did reorder subview from \(from) to \(to)")
+    }
     
 }
