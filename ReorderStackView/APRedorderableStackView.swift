@@ -68,6 +68,11 @@ public class APRedorderableStackView: UIStackView, UIGestureRecognizerDelegate {
         self.addLongPressGestureRecognizerForReorderingToView(view)
     }
     
+    override public func insertArrangedSubview(_ view: UIView, at stackIndex: Int) {
+        super.insertArrangedSubview(view, at: stackIndex)
+        self.addLongPressGestureRecognizerForReorderingToView(view)
+    }
+    
     fileprivate func addLongPressGestureRecognizerForReorderingToView(_ view: UIView) {
         let longPressGR = UILongPressGestureRecognizer(target: self, action: #selector(APRedorderableStackView.handleLongPress(_:)))
         longPressGR.delegate = self
